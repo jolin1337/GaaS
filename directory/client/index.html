@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" ng-app>
+<head>
+	<title>List of games</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/bootstrap.min.css" >
+	<link rel="stylesheet" href="css/bootstrap-responsive.min.css" >
+	<style>
+	body {margin: 0;padding: 0;background: black;}
+	h1 {
+		font-size: 32pt;
+	}
+	.container, .carousel-inner {
+		width: 100%;
+		height: 100%;
+		padding: 0;
+	
+	}
+	.container, .carousel, .item {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		padding: 0;
+		bottom: 0;
+	}
+	.carousel-inner > .item > img,
+	.carousel-inner > .item > a > img {
+		/*width: 100%;*/
+		min-height: 100%;
+		min-width: 100%;
+		max-height: none;
+		max-width: 100%;
+	}
+	.carousel-caption h1 a {
+		color: #fff;
+	}
+	.carousel-caption p {
+		font-size: 13pt;
+		text-shadow: 0 0 5px #000;
+		font-weight: bold;
+	}
+	.fullscreen {
+		position: absolute;
+		top: 0; bottom: 0;
+		left: 0; right: 0;
+		width: 100%;
+		height: 100%;
+	}
+	.bg-black {
+		background-color: #000;
+		background-color: rgba(0,0,0,0.4);
+	}
+	@media screen and (max-height: 500px), screen and (max-width: 500px) {
+		.carousel-caption h1 a {
+			position: absolute;
+			top: 0; bottom: 0;
+			left: 0; right: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+		}
+		h1 {
+			font-size: 22pt;
+		}
+		.carousel-control {
+			z-index: 3;
+		}
+		.carousel-caption p {
+			font-size: 9pt;
+		}
+	}
+	</style>
+</head>
+<body>
+
+<div class="container" ng-controller="GaaSController">
+	<div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval=false>
+		<!-- Indicators -->
+		<ol class="carousel-indicators">
+			<li ng-repeat="(key, game) in games" data-target="#myCarousel" data-slide-to="{{$index}}"></li>
+		</ol>
+		
+		<!-- Wrapper for slides -->
+		<div class="carousel-inner" role="listbox">
+		
+			<div ng-repeat="(index, game) in games" class="item">
+				
+				<img ng-src="{{game.image}}" alt="{{game.name}}">
+				<div class="fullscreen fill bg-black"></div>
+				<div class="carousel-caption">
+					<h1><a href="#{{game.slug}}">{{game.name}}</a></h1>
+					<p class="text-justify">{{game.description}}</p>
+					<a href="#{{game.slug}}" class="btn btn-lg btn-info" role="button">Play</a>
+				</div>
+			</div>
+			
+		</div>
+		
+		<!-- Left and right controls -->
+		<a class="left carousel-control" href="#myCarousel" role="button" data-slide="prev">
+			<span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
+		</a>
+		<a class="right carousel-control" href="#myCarousel" role="button" data-slide="next">
+			<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
+		</a>
+	</div>
+</div>
+	<script src="js/main.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
+	<script src="js/jquery.min.js"></script>
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/angular.min.js"></script>
+
+</body>
+</html>
