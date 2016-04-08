@@ -129,14 +129,14 @@ function GaaSController($scope) {
 			keyCode: keyCode
 		});
 	}
-	var scale = 1;
+	var scale = window.innerWidth * 0.0005;
 	var gamePadLayout = {
 		// Right key
 		RightKey: {
 			position: {x: '15%', y:'80%'},
-			offset: {x: 100},
+			offset: {x: 80 * scale},
 			width: 100 * scale,
-			height: 50,
+			height: 50 * scale,
 			fill: "rgba(0,0,0,0.5)",
 			stroke: "rgba(255,255,255,0.3)",
 			lineWidth: 3,
@@ -147,9 +147,9 @@ function GaaSController($scope) {
 		// Left key
 		LeftKey: {
 			position: {x: '15%', y:'80%'},
-			offset: {x: -100},
+			offset: {x: -80 * scale},
 			width: 100 * scale,
-			height: 50,
+			height: 50 * scale,
 			fill: "rgba(0,0,0,0.5)",
 			stroke: "rgba(255,255,255,0.3)",
 			lineWidth: 3,
@@ -160,8 +160,8 @@ function GaaSController($scope) {
 		// Up key
 		UpKey: {
 			position: {x: '15%', y:'80%'},
-			offset: {y: -100},
-			width: 50,
+			offset: {y: -80 * scale},
+			width: 50 * scale,
 			height: 100 * scale,
 			fill: "rgba(0,0,0,0.5)",
 			stroke: "rgba(255,255,255,0.3)",
@@ -173,8 +173,8 @@ function GaaSController($scope) {
 		// Down key
 		DownKey: {
 			position: {x: '15%', y:'80%'},
-			offset: {y: 100},
-			width: 50,
+			offset: {y: 80 * scale},
+			width: 50 * scale,
 			height: 100 * scale,
 			fill: "rgba(0,0,0,0.5)",
 			stroke: "rgba(255,255,255,0.3)",
@@ -187,7 +187,7 @@ function GaaSController($scope) {
 		// A key
 		A: {
 			position: {x: '85%', y:'75%'},
-			radius: 50,
+			radius: 70 * scale,
 			fill: "rgba(0, 200, 0, 0.3)",
 			stroke: "rgba(255,255,255, 0.3)",
 			lineWidth: 10,
@@ -198,7 +198,7 @@ function GaaSController($scope) {
 		// B key
 		B: {
 			position: {x: '75%', y:'85%'},
-			radius: 50,
+			radius: 70 * scale,
 			fill: "rgba(255,255,0, 0.3)",
 			stroke: "rgba(255,255,255, 0.3)",
 			lineWidth: 10,
