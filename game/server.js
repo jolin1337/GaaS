@@ -63,7 +63,8 @@ io.on('connection', function (socket) {
 
 	socket.on('disconnect', function () {
 		if(typeof gameInstance == "object") {
-			gameInstance.stopGame(socket.sessionId || socket.id);
+			if(typeof gameInstance.stopGame == "function")
+				gameInstance.stopGame(socket.sessionId || socket.id);
 			gameInstances.splice(gameInstances.indexOf(gameInstance), 1);
 		}
 		sockets.splice(sockets.indexOf(socket), 1);
