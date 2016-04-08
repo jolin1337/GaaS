@@ -22,17 +22,25 @@ function GaaSController($scope) {
 				break;
 			}
 	});
+	socket.on('playerList', function(players) {
+		if(players.players.length == 1) {
+			
+			window.location.href = 'http://' + $scope.ip + '/#' + players.gameId + "," + players.players[0];
+		console.log(players);
+		}
+	});
 	socket.emit('directory');
 	
 	$scope.lookUpWatchers = function(gameId) {
-		jQuery.support.cors = true;
-		window.$.ajax({
-			url: 'http://gaas-wissthom.c9users.io:8081/inGamePlayers', 
-			data: {game:gameId}, 
-			dataType: 'json',
-			success: function(onGoingGames) {
-				console.log(onGoingGames);
-			}
-		});
+		socket.emit('playersOf', gameId);
+		// jQuery.support.cors = true;
+		// window.$.ajax({
+		// 	url: 'http://gaas-wissthom.c9users.io:8081/inGamePlayers', 
+		// 	data: {game:gameId}, 
+		// 	dataType: 'json',
+		// 	success: function(onGoingGames) {
+		// 		console.log(onGoingGames);
+		// 	}
+		// });
 	}
 }

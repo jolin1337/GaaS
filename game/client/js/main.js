@@ -7,10 +7,15 @@ window.onhashchange = function () {
     window.location.reload();
 }
 function GaaSController($scope) {
-	var gameSlug = window.location.hash.substr(1);
+	var gamePath = window.location.hash.substr(1).split(',');
+	var gameSlug = gamePath[0];
+	var gameWatch = "";
 	if(gameSlug == "") {
 		// location.href = "/";
 		return;
+	}
+	if(gamePath.length > 1) {
+		gameWatch += "watch=" + gamePath[1];
 	}
 	var socket = io.connect(window.location.origin, { query: "game=" + gameSlug });
 	var controls = {};

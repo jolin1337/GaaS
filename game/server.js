@@ -24,13 +24,6 @@ var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
 
 router.get('/inGamePlayers', function(request, response) {
-	 // Website you wish to allow to connect
-   response.header('Access-Control-Allow-Origin', '*');//'http://' + process.argv[2]);
-    // Request methods you wish to allow
-   response.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
-   // Headers of the request you want to allow
-   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Accept-Encoding, Accept-Language, Connection, Host, Referer, User-Agent');
-   
 	response.setHeader('content-type', 'text/json');
 	if(typeof request.query.game == "string") {
 		var socketsInGame = findSocketsInGame(request.query.game);
@@ -53,11 +46,11 @@ io.on('connection', function (socket) {
 		socket.disconnect();
 	}
 	var gameSlug = socket.handshake.query.game;
-	var whatchGameId = socket.handshake.query.whatch;
-	if(!isNaN(whatchGameId) && whatchGameId > -1) {
-		var socketToWhatch = findSocket(whatchGameId);
-		if(!isNaN(socketToWhatch)) {
-			socketToWhatch.whatchers.push(socket);
+	var watchGameId = socket.handshake.query.watch;
+	if(!isNaN(watchGameId) && watchGameId > -1) {
+		var socketToWatch = findSocket(watchGameId);
+		if(!isNaN(socketToWatch)) {
+			socketToWatch.watchers.push(socket);
 			return;
 		}
 	}
@@ -68,17 +61,18 @@ io.on('connection', function (socket) {
 	}
 	
 	var gameInstance = null;
+	socket.watchers = [];
+	socket.gameInstance = {};
 	try {
 		Game.createNewGame({slug: gameSlug}, function (g) {
 			socket.gameInstance = g;
-			socket.whatchers = [];
 			gameInstance = g;
 			gameInstances.push(gameInstance);
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) // TODO: implement streaming content
 					socket.emit('image', {data: canvasData});
-				for(var i = 0; i < socket.whatchers.length; i++)
-					socket.whatchers[i].emit('image', {date: canvasData});
+				for(var i = 0; i < socket.watchers.length; i++)
+					socket.watchers[i].emit('image', {date: canvasData});
 			});
 			var ctrls = Game.getControls(gameSlug);
 			// console.log(ctrls);
@@ -116,6 +110,7 @@ io.on('connection', function (socket) {
 function findSocketsInGame(gameId) {
 	var s = [];
 	sockets.forEach(function(socket) {
+		console.log(socket.gameInstance, gameId);
 		if(socket.gameInstance.id == gameId)
 			s.push(socket);
 	});

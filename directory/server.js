@@ -25,47 +25,49 @@ var fs = require("fs");
 var router = express();
 var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
-router.get('/', function(request, response, next) {
-    // Website you wish to allow to connect
-   response.header('Access-Control-Allow-Origin', '*');//'http://' + process.argv[2]);
-    // Request methods you wish to allow
-   response.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
-   // Headers of the request you want to allow
-   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Accept-Encoding, Accept-Language, Connection, Host, Referer, User-Agent');
-   next();
-});
 router.use(express.static(path.resolve(__dirname, 'client')));
 var sockets = [];
+
+function getFromGameServer(file, callback, failCallback) {
+	var ip = process.argv[2];
+	var url = "http://" + ip + '/' + file;
+	request({
+	    url: url,
+	    json: true,
+	}, function (error, response, data) {
+	    if (!error && response.statusCode === 200) {
+	    	callback(response, data);
+	    }
+	    else {
+	    	console.error(error);
+	    	if(response !== null)
+	    		console.error(response.statusCode);
+	    	else response = undefined;
+	    	failCallback(error, response);
+	    }
+	});
+}
 
 io.on('connection', function (socket) {
 	sockets.push(socket);
 	
 	socket.on('directory', function() {
-		try {
-			var ip = process.argv[2];
-			var url = "http://" + ip + "/game-meta.json";
-			console.log(url);
-			request({
-			    url: url,
-			    json: true,
-			}, function (error, response, gameMeta) {
-			    if (!error && response.statusCode === 200) {
-			    	if(typeof gameMeta.gameIp == "string" && gameMeta.gameIp != process.argv[2])
-			    		console.warn("The ip set in init of this server does not match the one in game-meta.json file. Continue using " + process.argv[2]);
-			    	gameMeta.gameIp = process.argv[2];
-		    		socket.emit('directory', gameMeta);
-		    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
-			    }
-			    else {
-			    	console.error(error);
-			    	if(response !== null)
-			    		console.error(response.statusCode);
-					socket.emit('directory', {"games" : [{name: "Sorry, no games available right now."}]});
-			    }
-			})
-		} catch(e) {
+		getFromGameServer('game-meta.json', function(response, gameMeta) {
+	    	if(typeof gameMeta.gameIp == "string" && gameMeta.gameIp != process.argv[2])
+	    		console.warn("The ip set in init of this server does not match the one in game-meta.json file. Continue using " + process.argv[2]);
+	    	gameMeta.gameIp = process.argv[2];
+    		socket.emit('directory', gameMeta);
+    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
+		}, function(error, response) {
 			socket.emit('directory', {"games" : [{name: "Sorry, no games available right now."}]});
-		}
+		});
+	});
+	socket.on('playersOf', function(gameId) {
+		getFromGameServer('inGamePlayers?game=' + gameId, function(response, playerList) {
+			socket.emit('playerList', playerList);
+		}, function() {
+			socket.emit('playerList', {players:[], gameId: -1});
+		});
 	});
 
 	socket.on('disconnect', function () {
