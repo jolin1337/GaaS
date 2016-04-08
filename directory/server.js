@@ -51,14 +51,14 @@ io.on('connection', function (socket) {
 
 	socket.on('disconnect', function () {
 		sockets.splice(sockets.indexOf(socket), 1);
-		updateRoster();
+		//	updateRoster();
 	});
 
-	socket.on('identify', function (name) {
-		socket.set('name', String(name || 'Anonymous'), function (err) {
-			updateRoster();
-		});
-	});
+	//socket.on('identify', function (name) {
+	//	socket.set('name', String(name || 'Anonymous'), function (err) {
+	//		updateRoster();
+	//	});
+	//});
 });
 
 function updateRoster() {

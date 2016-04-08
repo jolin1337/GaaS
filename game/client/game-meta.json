@@ -33,12 +33,13 @@
         },
         {
             "id": 997,
-            "name": "Alien Invation",
+            "name": "Alien Invasion",
             "slug": "alieninvasion",
             "width": 320,
             "height": 480,
             "path": "server/games/alieninvasion",
             "image": "/img/alien-invasion.png",
+            "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In hendrerit sed risus in tincidunt. Quisque euismod nulla sit amet nulla dapibus, in tristique sem bibendum. Maecenas cursus, nisl sed mattis efficitur, metus orci rutrum eros, vel ullamcorper ante tortor eu enim. In hac habitasse platea dictumst. Curabitur maximus ultricies congue. Morbi dignissim, ligula non malesuada molestie, lorem leo luctus nisi, ut suscipit odio arcu a eros. Vivamus venenatis, velit vitae congue eleifend, purus elit gravida ligula, sit amet molestie massa purus lacinia nulla. Cras a sapien fermentum, porttitor leo eget, vehicula turpis. Quisque bibendum ex vel enim facilisis suscipit",
             "controls": [
                 {"key": "Space", "keyCode": 32, "event": "keydown|keyup", "map": "A"},
                 {"key": "LeftKey", "keyCode": 37, "event": "keydown|keyup", "map": "LeftKey"},
