@@ -47,10 +47,14 @@ io.on('connection', function (socket) {
 	}
 	var gameIdentifier = socket.handshake.query.game;
 	var watchGameId = socket.handshake.query.watch;
-	if(!isNaN(watchGameId) && watchGameId > -1) {
+	if(typeof watchGameId == "string" && watchGameId.length > 0) {
 		var socketToWatch = findSocket(watchGameId);
-		if(!isNaN(socketToWatch)) {
+		if(typeof socketToWatch == "object") {
 			socketToWatch.watchers.push(socket);
+			return;
+		}
+		else {
+			socket.disconnect();
 			return;
 		}
 	}
@@ -70,10 +74,11 @@ io.on('connection', function (socket) {
 			gameInstance = g;
 			gameInstances.push(gameInstance);
 			gameInstance.on('update', function (delta, canvasData) {
-				if(canvasData !== null) // TODO: implement streaming content
+				if(canvasData !== null) { // TODO: implement streaming content
 					socket.emit('image', {data: canvasData});
-				for(var i = 0; i < socket.watchers.length; i++)
-					socket.watchers[i].emit('image', {data: canvasData});
+					for(var i = 0; i < socket.watchers.length; i++)
+						socket.watchers[i].emit('image', {data: canvasData});
+				}
 			});
 			var ctrls = Game.getControls(gameIdentifier);
 			// console.log(ctrls);
@@ -111,7 +116,6 @@ io.on('connection', function (socket) {
 function findSocketsInGame(gameId) {
 	var s = [];
 	sockets.forEach(function(socket) {
-		console.log(socket.gameInstance, gameId);
 		if(socket.gameInstance.id == gameId)
 			s.push(socket);
 	});
