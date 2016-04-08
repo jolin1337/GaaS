@@ -39,8 +39,10 @@ io.on('connection', function (socket) {
 		    		socket.emit('directory', gameMeta);
 		    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
 			    }
-			    else 
+			    else {
+			    	console.error(error, response.statusCode);
 					socket.emit('directory', {"games" : []});
+			    }
 			})
 		} catch(e) {
 			socket.emit('directory', {"games" : []});

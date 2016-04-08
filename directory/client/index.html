@@ -89,7 +89,7 @@
 				<img ng-src="{{game.image}}" alt="{{game.name}}">
 				<div class="fullscreen fill bg-black"></div>
 				<div class="carousel-caption">
-					<h1><a href="#{{game.slug}}">{{game.name}}</a></h1>
+					<h1><a ng-href="http://{{ip}}#{{game.slug}}">{{game.name}}</a></h1>
 					<p class="text-justify">{{game.description}}</p>
 					<a href="#{{game.slug}}" class="btn btn-lg btn-info" role="button">Play</a>
 				</div>

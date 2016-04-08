@@ -4,6 +4,7 @@ function GaaSController($scope) {
 	
 	$scope.games = [{name: "Loading..."}];
 	socket.on('directory', function (games) {
+		$scope.ip = games.gameIp;
 	    $scope.games = games.games;
 		$scope.$apply();
 		$('.carousel-indicators li:first-child').addClass('active');
