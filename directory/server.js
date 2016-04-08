@@ -25,13 +25,13 @@ var fs = require("fs");
 var router = express();
 var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
-router.get('/index.html', function(request, response, next) {
-	
+router.get('/', function(request, response, next) {
     // Website you wish to allow to connect
-   response.setHeader('Access-Control-Allow-Origin', 'http://localhost:8888');
+   response.header('Access-Control-Allow-Origin', '*');//'http://' + process.argv[2]);
     // Request methods you wish to allow
-   response.setHeader('Access-Control-Allow-Methods', 'GET');
-   response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+   response.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
+   // Headers of the request you want to allow
+   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Accept-Encoding, Accept-Language, Connection, Host, Referer, User-Agent');
    next();
 });
 router.use(express.static(path.resolve(__dirname, 'client')));
@@ -44,7 +44,7 @@ io.on('connection', function (socket) {
 		try {
 			var ip = process.argv[2];
 			var url = "http://" + ip + "/game-meta.json";
-			
+			console.log(url);
 			request({
 			    url: url,
 			    json: true,
@@ -57,7 +57,9 @@ io.on('connection', function (socket) {
 		    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
 			    }
 			    else {
-			    	console.error(error, response);
+			    	console.error(error);
+			    	if(response !== null)
+			    		console.error(response.statusCode);
 					socket.emit('directory', {"games" : [{name: "Sorry, no games available right now."}]});
 			    }
 			})

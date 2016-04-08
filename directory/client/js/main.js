@@ -25,9 +25,14 @@ function GaaSController($scope) {
 	socket.emit('directory');
 	
 	$scope.lookUpWatchers = function(gameId) {
-		console.log('http://' + $scope.ip + "/inGamePlayers")
-		$.get('http://' + $scope.ip + '/inGamePlayers', {game:gameId}, function(onGoingGames) {
-			console.log(onGoingGames);
-		})
+		jQuery.support.cors = true;
+		window.$.ajax({
+			url: 'http://gaas-wissthom.c9users.io:8081/inGamePlayers', 
+			data: {game:gameId}, 
+			dataType: 'json',
+			success: function(onGoingGames) {
+				console.log(onGoingGames);
+			}
+		});
 	}
 }

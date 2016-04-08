@@ -24,6 +24,13 @@ var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
 
 router.get('/inGamePlayers', function(request, response) {
+	 // Website you wish to allow to connect
+   response.header('Access-Control-Allow-Origin', '*');//'http://' + process.argv[2]);
+    // Request methods you wish to allow
+   response.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
+   // Headers of the request you want to allow
+   response.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Accept-Encoding, Accept-Language, Connection, Host, Referer, User-Agent');
+   
 	response.setHeader('content-type', 'text/json');
 	if(typeof request.query.game == "string") {
 		var socketsInGame = findSocketsInGame(request.query.game);
