@@ -24,6 +24,7 @@ var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
 
 router.get('/inGamePlayers', function(request, response) {
+	response.setHeader('content-type', 'text/json');
 	if(typeof request.query.game == "string") {
 		var socketsInGame = findSocketsInGame(request.query.game);
 		var socketIdsInGame = [];

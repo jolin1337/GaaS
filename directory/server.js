@@ -25,7 +25,15 @@ var fs = require("fs");
 var router = express();
 var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
-
+router.get('/index.html', function(request, response, next) {
+	
+    // Website you wish to allow to connect
+   response.setHeader('Access-Control-Allow-Origin', 'http://localhost:8888');
+    // Request methods you wish to allow
+   response.setHeader('Access-Control-Allow-Methods', 'GET');
+   response.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+   next();
+});
 router.use(express.static(path.resolve(__dirname, 'client')));
 var sockets = [];
 
