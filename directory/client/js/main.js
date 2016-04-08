@@ -23,4 +23,10 @@ function GaaSController($scope) {
 			}
 	});
 	socket.emit('directory');
+	
+	$scope.lookUpWatchers = function(gameId) {
+		$.get($scope.ip + "/inGamePlayers", {game:gameId}, function(onGoingGames) {
+			console.log(onGoingGames);
+		})
+	}
 }

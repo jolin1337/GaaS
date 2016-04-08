@@ -24,25 +24,53 @@ var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
 
 router.use(express.static(path.resolve(__dirname, 'client')));
+router.get('/inGamePlayers', function(request, response) {
+	if(typeof request.query.game == "string") {
+		var socketsInGame = findSocketsInGame(request.query.game);
+		var socketIdsInGame = [];
+		socketsInGame.forEach(function(socket) {
+			socketIdsInGame.push(socket.sessionId || socket.id);
+		});
+		response.end(JSON.stringify({players: socketIdsInGame, gameId: request.query.game}));
+	}
+	else response.end("{players:[], gameId: -1}");
+});
 var gameInstances = [];
 var sockets = [];
 
 
 io.on('connection', function (socket) {
+	if(sockets.length > 4) {
+		// To much load on the server! TODO: Maybe send a message to the client
+		socket.disconnect();
+	}
 	var gameSlug = socket.handshake.query.game;
+	var whatchGameId = socket.handshake.query.whatch;
+	if(!isNaN(whatchGameId) && whatchGameId > -1) {
+		var socketToWhatch = findSocket(whatchGameId);
+		if(!isNaN(socketToWhatch)) {
+			socketToWhatch.whatchers.push(socket);
+			return;
+		}
+	}
 	if(typeof gameSlug == "undefined") {
 		
 		socket.disconnect();
 		return;
 	}
+	
 	var gameInstance = null;
 	try {
 		Game.createNewGame({slug: gameSlug}, function (g) {
+			socket.gameInstance = g;
+			socket.whatchers = [];
 			gameInstance = g;
 			gameInstances.push(gameInstance);
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) // TODO: implement streaming content
 					socket.emit('image', {data: canvasData});
+				for(var i = 0; i < socket.whatchers.length; i++)
+					socket.whatchers[i].emit('image', {date: canvasData});
 			});
 			var ctrls = Game.getControls(gameSlug);
 			// console.log(ctrls);
@@ -62,10 +90,10 @@ io.on('connection', function (socket) {
 
 
 	socket.on('disconnect', function () {
-		if(typeof gameInstance == "object") {
-			if(typeof gameInstance.stopGame == "function")
-				gameInstance.stopGame(socket.sessionId || socket.id);
-			gameInstances.splice(gameInstances.indexOf(gameInstance), 1);
+		if(typeof socket.gameInstance == "object") {
+			if(typeof socket.gameInstance.stopGame == "function")
+				socket.gameInstance.stopGame(socket.sessionId || socket.id);
+			gameInstances.splice(gameInstances.indexOf(socket.gameInstance), 1);
 		}
 		sockets.splice(sockets.indexOf(socket), 1);
 		//updateRoster();
@@ -77,7 +105,22 @@ io.on('connection', function (socket) {
 		// });
 	});
 });
-
+function findSocketsInGame(gameId) {
+	var s = [];
+	sockets.forEach(function(socket) {
+		if(socket.gameInstance.id == gameId)
+			s.push(socket);
+	});
+	return s;
+}
+function findSocket(socketId) {
+	var s = null;
+	sockets.forEach(function(socket) {
+		if(socket.id == socketId || socket.sessionId == socketId)
+			s = socket;
+	});
+	return s;
+}
 function updateRoster() {
 	async.map(
 		sockets,
