@@ -89,30 +89,30 @@ function GaaSController($scope) {
 		}
    }
 	
-	var controlview = $('#controlview');
+	var controlview = window.$('#controlview');
 	var eventNames = ['keydown', 'keyup', 'keypress'];
 	for(var i = 0; i < eventNames.length; i++) {
 		window.addEventListener(eventNames[i], keyEvent);
 	}
 	eventNames = ['mousemove', 'mousedown', 'mouseup', 'click'];
+	function mouseEvent(event) {
+		if(mouseEvents[event.type] !== true) return true;
+				// console.log(event.type);
+		var offset = img.offset();
+		var scaleX = img[0].naturalWidth / img.width();
+		var scaleY = img[0].naturalHeight / img.height();
+		socket.emit(event.type, {
+			type: event.type,
+			screenX: Math.min( scaleX * (event.screenX - offset.left), 	img[0].naturalWidth), 
+			screenY: Math.min( scaleY * (event.screenY - offset.top), 	img[0].naturalHeight),
+			clientX: Math.min( scaleX * (event.clientX - offset.left), 	img[0].naturalWidth),
+			clientY: Math.min( scaleY * (event.clientY - offset.top), 	img[0].naturalHeight),
+			pageX: Math.min( scaleX * (event.pageX - offset.left), 		img[0].naturalWidth),
+			pageY: Math.min( scaleY * (event.pageY - offset.top), 		img[0].naturalHeight)
+		});
+	}
+	img.on(eventNames[i], mouseEvent);
 	for(var i in eventNames) {
-		function mouseEvent(event) {
-			if(mouseEvents[event.type] !== true) return true;
-					// console.log(event.type);
-			var offset = img.offset();
-			var scaleX = img[0].naturalWidth / img.width();
-			var scaleY = img[0].naturalHeight / img.height();
-			socket.emit(event.type, {
-				type: event.type,
-				screenX: Math.min( scaleX * (event.screenX - offset.left), 	img[0].naturalWidth), 
-				screenY: Math.min( scaleY * (event.screenY - offset.top), 	img[0].naturalHeight),
-				clientX: Math.min( scaleX * (event.clientX - offset.left), 	img[0].naturalWidth),
-				clientY: Math.min( scaleY * (event.clientY - offset.top), 	img[0].naturalHeight),
-				pageX: Math.min( scaleX * (event.pageX - offset.left), 		img[0].naturalWidth),
-				pageY: Math.min( scaleY * (event.pageY - offset.top), 		img[0].naturalHeight)
-			});
-		}
-		img.on(eventNames[i], mouseEvent);
 		controlview.on(eventNames[i], mouseEvent);
 	}
 	

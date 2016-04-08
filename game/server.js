@@ -23,7 +23,6 @@ var router = express();
 var server = http.createServer(router);
 var io = socketio.listen(server, {log: false});
 
-router.use(express.static(path.resolve(__dirname, 'client')));
 router.get('/inGamePlayers', function(request, response) {
 	if(typeof request.query.game == "string") {
 		var socketsInGame = findSocketsInGame(request.query.game);
@@ -35,6 +34,7 @@ router.get('/inGamePlayers', function(request, response) {
 	}
 	else response.end("{players:[], gameId: -1}");
 });
+router.use(express.static(path.resolve(__dirname, 'client')));
 var gameInstances = [];
 var sockets = [];
 

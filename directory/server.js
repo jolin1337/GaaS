@@ -1,8 +1,14 @@
 //
-// # SimpleServer
+// # Gaming as a service directory app
 //
-// A simple chat server using Socket.IO, Express, and Async.
+// This file list all games available to the public gaming server
 //
+
+if(process.argv.length < 3) {
+	console.log("You need to specify the path (ip and port number) to the game server as an argument.");
+	process.exit(1);
+}
+
 var http = require('http');
 var request = require("request");
 var path = require('path');
@@ -28,14 +34,17 @@ io.on('connection', function (socket) {
 	
 	socket.on('directory', function() {
 		try {
-
-			var url = "http://" + process.argv[2] + "/game-meta.json";
+			var ip = process.argv[2];
+			var url = "http://" + ip + "/game-meta.json";
 			
 			request({
 			    url: url,
-			    json: true
+			    json: true,
 			}, function (error, response, gameMeta) {
 			    if (!error && response.statusCode === 200) {
+			    	if(typeof gameMeta.gameIp == "string" && gameMeta.gameIp != process.argv[2])
+			    		console.warn("The ip set in init of this server does not match the one in game-meta.json file. Continue using " + process.argv[2]);
+			    	gameMeta.gameIp = process.argv[2];
 		    		socket.emit('directory', gameMeta);
 		    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
 			    }
