@@ -29,14 +29,15 @@ router.get('/inGamePlayers', function(request, response) {
 		var socketsInGame = findSocketsInGame(request.query.game);
 		var socketIdsInGame = [];
 		socketsInGame.forEach(function(socket) {
-			socketIdsInGame.push(socket.sessionId || socket.id);
+			var sID = socket.sessionId || socket.id;
+			socketIdsInGame.push(sID);
 		});
 		response.end(JSON.stringify({players: socketIdsInGame, gameId: request.query.game}));
 	}
 	else response.end("{players:[], gameId: -1}");
 });
 router.use(express.static(path.resolve(__dirname, 'client')));
-var gameInstances = [];
+var gameInstances = {};
 var sockets = [];
 
 
@@ -50,7 +51,11 @@ io.on('connection', function (socket) {
 	if(typeof watchGameId == "string" && watchGameId.length > 0) {
 		var socketToWatch = findSocket(watchGameId);
 		if(typeof socketToWatch == "object") {
-			socketToWatch.watchers.push(socket);
+			var sID = socketToWatch.sessionId || socketToWatch.id;
+			gameInstances[sID].watchers.push(socket);
+			socket.on('disconnect', function() {
+				gameInstances[sID].watchers.splice(gameInstances[sID].watchers.indexOf(socket),1);
+			});
 			return;
 		}
 		else {
@@ -65,19 +70,18 @@ io.on('connection', function (socket) {
 	}
 	else if(!isNaN(gameIdentifier)) gameIdentifier = Math.floor(gameIdentifier);
 	
-	var gameInstance = null;
-	socket.watchers = [];
-	socket.gameInstance = {};
+	var gameInstance = {watchers:[]};
 	try {
+		var sID = socket.sessionId || socket.id;
 		Game.createNewGame(gameIdentifier, function (g) {
-			socket.gameInstance = g;
 			gameInstance = g;
-			gameInstances.push(gameInstance);
+			gameInstance.watchers = [];
+			gameInstances[sID] = gameInstance;
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) { // TODO: implement streaming content
 					socket.emit('image', {data: canvasData});
-					for(var i = 0; i < socket.watchers.length; i++)
-						socket.watchers[i].emit('image', {data: canvasData});
+					for(var i = 0; i < gameInstances[sID].watchers.length; i++)
+						gameInstances[sID].watchers[i].emit('image', {data: canvasData});
 				}
 			});
 			var ctrls = Game.getControls(gameIdentifier);
@@ -87,7 +91,7 @@ io.on('connection', function (socket) {
 				mouse: ctrls.mouseEvents
 			});
 			setUpGameListeners(socket, gameInstance);
-		}).startGame(socket.sessionId || socket.id);
+		}).startGame(sID);
 	} catch(e) {
 		console.log("User tryed to access a game that yet not exists: " + gameIdentifier);
 		socket.disconnect();
@@ -98,10 +102,11 @@ io.on('connection', function (socket) {
 
 
 	socket.on('disconnect', function () {
-		if(typeof socket.gameInstance == "object") {
-			if(typeof socket.gameInstance.stopGame == "function")
-				socket.gameInstance.stopGame(socket.sessionId || socket.id);
-			gameInstances.splice(gameInstances.indexOf(socket.gameInstance), 1);
+		if(typeof gameInstance == "object") {
+			if(typeof gameInstance.stopGame == "function")
+				gameInstance.stopGame(socket.sessionId || socket.id);
+			gameInstances[socket.sessionId || socket.id] = undefined;
+			//gameInstances.splice(gameInstances.indexOf(gameInstance), 1);
 		}
 		sockets.splice(sockets.indexOf(socket), 1);
 		//updateRoster();
@@ -116,7 +121,7 @@ io.on('connection', function (socket) {
 function findSocketsInGame(gameId) {
 	var s = [];
 	sockets.forEach(function(socket) {
-		if(socket.gameInstance.id == gameId)
+		if(gameInstances[socket.sessionId || socket.id].id == gameId)
 			s.push(socket);
 	});
 	return s;
