@@ -45,7 +45,7 @@ io.on('connection', function (socket) {
 		// To much load on the server! TODO: Maybe send a message to the client
 		socket.disconnect();
 	}
-	var gameSlug = socket.handshake.query.game;
+	var gameIdentifier = socket.handshake.query.game;
 	var watchGameId = socket.handshake.query.watch;
 	if(!isNaN(watchGameId) && watchGameId > -1) {
 		var socketToWatch = findSocket(watchGameId);
@@ -54,17 +54,18 @@ io.on('connection', function (socket) {
 			return;
 		}
 	}
-	if(typeof gameSlug == "undefined") {
+	if(typeof gameIdentifier == "undefined") {
 		
 		socket.disconnect();
 		return;
 	}
+	else if(!isNaN(gameIdentifier)) gameIdentifier = Math.floor(gameIdentifier);
 	
 	var gameInstance = null;
 	socket.watchers = [];
 	socket.gameInstance = {};
 	try {
-		Game.createNewGame(gameSlug, function (g) {
+		Game.createNewGame(gameIdentifier, function (g) {
 			socket.gameInstance = g;
 			gameInstance = g;
 			gameInstances.push(gameInstance);
@@ -74,7 +75,7 @@ io.on('connection', function (socket) {
 				for(var i = 0; i < socket.watchers.length; i++)
 					socket.watchers[i].emit('image', {data: canvasData});
 			});
-			var ctrls = Game.getControls(gameSlug);
+			var ctrls = Game.getControls(gameIdentifier);
 			// console.log(ctrls);
 			socket.emit('controls', {
 				kb: ctrls.keyboardEvents, 
@@ -83,7 +84,7 @@ io.on('connection', function (socket) {
 			setUpGameListeners(socket, gameInstance);
 		}).startGame(socket.sessionId || socket.id);
 	} catch(e) {
-		console.log("User tryed to access a game that yet not exists: " + gameSlug);
+		console.log("User tryed to access a game that yet not exists: " + gameIdentifier);
 		socket.disconnect();
 	}
 	// Loading screen...
