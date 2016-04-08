@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" ng-app>
+	<head>
+		<title>GaaS - Example page</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<meta name="HandheldFriendly" content="true">
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<link rel="stylesheet" href="css/bootstrap-responsive.min.css">
+		<style type="text/css">
+			body {
+				background: #111;
+			}
+			#gameview, #controlview, canvas {
+			    margin: auto;
+			    position: absolute;
+			    top:0%;bottom:0;
+			    left:0%;right:0;
+			}
+		</style>
+	</head>
+	<!-- TODO: show frame per second (the rate) -->
+	<body ng-keydown="keydown($event)" ng-keyup="keyup($event)" ng-keypress="keypress($event)">
+		<div ng-controller="GaaSController">
+			<div style="position:absolute;top:0%;left:0%;height:100%;width: 100%;">
+				<img style="" id="gameview"/>
+				<canvas id="controlview"></canvas>
+			</div>
+		</div>
+		<script src="js/main.js"></script>
+		<script src="js/hand.min.js"></script>
+		<script src="js/gamecontroller.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script src="js/angular.min.js"></script>
+	</body>
+</html>

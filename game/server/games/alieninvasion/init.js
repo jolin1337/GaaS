@@ -1,0 +1,1 @@
+Game.initialize("game",sprites,startGame);
