@@ -15,9 +15,9 @@ function GaaSController($scope) {
 		return;
 	}
 	if(gamePath.length > 1) {
-		gameWatch += "watch=" + gamePath[1];
+		gameWatch += "&watch=" + gamePath[1];
 	}
-	var socket = io.connect(window.location.origin, { query: "game=" + gameSlug });
+	var socket = io.connect(window.location.origin, { query: "game=" + gameSlug + gameWatch });
 	var controls = {};
 	var img = $('#gameview');
 

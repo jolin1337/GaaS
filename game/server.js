@@ -64,7 +64,7 @@ io.on('connection', function (socket) {
 	socket.watchers = [];
 	socket.gameInstance = {};
 	try {
-		Game.createNewGame({slug: gameSlug}, function (g) {
+		Game.createNewGame(gameSlug, function (g) {
 			socket.gameInstance = g;
 			gameInstance = g;
 			gameInstances.push(gameInstance);
