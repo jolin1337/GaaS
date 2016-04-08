@@ -40,12 +40,12 @@ io.on('connection', function (socket) {
 		    		//JSON.parse(fs.readFileSync(__dirname + '/server/game-meta.json', 'utf8')));
 			    }
 			    else {
-			    	console.error(error, response.statusCode);
-					socket.emit('directory', {"games" : []});
+			    	console.error(error, response);
+					socket.emit('directory', {"games" : [{name: "Sorry, no games available right now."}]});
 			    }
 			})
 		} catch(e) {
-			socket.emit('directory', {"games" : []});
+			socket.emit('directory', {"games" : [{name: "Sorry, no games available right now."}]});
 		}
 	});
 
