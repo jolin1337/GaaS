@@ -13,7 +13,7 @@ var express = require('express');
 var gaas = require("gaas");
 var canvasStream = gaas.stream;
 var Game = gaas.Game;
-Game.getGamesDataFromFile(__dirname + "/server/game-meta.json");
+Game.getGamesDataFromFile(__dirname + "/client/game-meta.json");
 
 //
 // Creates a new instance of SimpleServer with the following options:
@@ -27,8 +27,14 @@ router.use(express.static(path.resolve(__dirname, 'client')));
 var gameInstances = [];
 var sockets = [];
 
+
 io.on('connection', function (socket) {
 	var gameSlug = socket.handshake.query.game;
+	if(typeof gameSlug == "undefined") {
+		
+		socket.disconnect();
+		return;
+	}
 	var gameInstance = null;
 	try {
 		Game.createNewGame({slug: gameSlug}, function (g) {
