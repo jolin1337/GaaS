@@ -72,7 +72,7 @@ io.on('connection', function (socket) {
 				if(canvasData !== null) // TODO: implement streaming content
 					socket.emit('image', {data: canvasData});
 				for(var i = 0; i < socket.watchers.length; i++)
-					socket.watchers[i].emit('image', {date: canvasData});
+					socket.watchers[i].emit('image', {data: canvasData});
 			});
 			var ctrls = Game.getControls(gameSlug);
 			// console.log(ctrls);
