@@ -40,7 +40,7 @@ function getFromGameServer(file, callback, failCallback) {
 	    }
 	    else {
 	    	console.error(error);
-	    	if(response !== null)
+	    	if(response != null)
 	    		console.error(response.statusCode);
 	    	else response = undefined;
 	    	failCallback(error, response);

@@ -30,7 +30,7 @@ router.get('/inGamePlayers', function(request, response) {
 		var socketIdsInGame = [];
 		socketsInGame.forEach(function(socket) {
 			var sID = socket.sessionId || socket.id;
-			socketIdsInGame.push(sID);
+			socketIdsInGame.push(gameInstances[sID].userName);
 		});
 		response.end(JSON.stringify({players: socketIdsInGame, gameId: request.query.game}));
 	}
@@ -39,7 +39,7 @@ router.get('/inGamePlayers', function(request, response) {
 router.use(express.static(path.resolve(__dirname, 'client')));
 var gameInstances = {};
 var sockets = [];
-
+var socketCount = 0;
 
 io.on('connection', function (socket) {
 	if(sockets.length > 4) {
@@ -53,9 +53,12 @@ io.on('connection', function (socket) {
 		if(typeof socketToWatch == "object") {
 			var sID = socketToWatch.sessionId || socketToWatch.id;
 			gameInstances[sID].watchers.push(socket);
+			sockets.push(socket);
 			socket.on('disconnect', function() {
 				gameInstances[sID].watchers.splice(gameInstances[sID].watchers.indexOf(socket),1);
+				sockets.splice(sockets.indexOf(socket), 1);
 			});
+			setUpWatchListeners(socket, gameInstances[sID]);
 			return;
 		}
 		else {
@@ -76,6 +79,7 @@ io.on('connection', function (socket) {
 		Game.createNewGame(gameIdentifier, function (g) {
 			gameInstance = g;
 			gameInstance.watchers = [];
+			gameInstance.userName = "User " + (++socketCount);
 			gameInstances[sID] = gameInstance;
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) { // TODO: implement streaming content
@@ -90,6 +94,32 @@ io.on('connection', function (socket) {
 				kb: ctrls.keyboardEvents, 
 				mouse: ctrls.mouseEvents
 			});
+			
+			socket.on('disconnect', function () {
+				if(typeof gameInstance == "object") {
+					if(gameInstance.userName.split(" ")[1] >= socketCount)
+						socketCount--;
+					if(sockets.length <= 1) 
+						socketCount = 0;
+					if(typeof gameInstance.stopGame == "function")
+						gameInstance.stopGame(socket.sessionId || socket.id);
+					gameInstances[socket.sessionId || socket.id] = undefined;
+					//gameInstances.splice(gameInstances.indexOf(gameInstance), 1);
+				}
+				sockets.splice(sockets.indexOf(socket), 1);
+				//updateRoster();
+			});
+		
+			socket.on('identify', function (name) {
+				for(var i in gameInstances) 
+					if(gameInstances[i] != undefined && gameInstances[i].userName == name)
+						return;
+				gameInstance.userName = name;
+				// socket.set('name', String(name || 'Anonymous'), function (err) {
+				// 	updateRoster();
+				// });
+			});
+			setUpWatchListeners(socket, gameInstance);
 			setUpGameListeners(socket, gameInstance);
 		}).startGame(sID);
 	} catch(e) {
@@ -100,23 +130,6 @@ io.on('connection', function (socket) {
 	socket.emit('image', {data: canvasStream.render()});
 	sockets.push(socket);
 
-
-	socket.on('disconnect', function () {
-		if(typeof gameInstance == "object") {
-			if(typeof gameInstance.stopGame == "function")
-				gameInstance.stopGame(socket.sessionId || socket.id);
-			gameInstances[socket.sessionId || socket.id] = undefined;
-			//gameInstances.splice(gameInstances.indexOf(gameInstance), 1);
-		}
-		sockets.splice(sockets.indexOf(socket), 1);
-		//updateRoster();
-	});
-
-	socket.on('identify', function (name) {
-		// socket.set('name', String(name || 'Anonymous'), function (err) {
-		// 	updateRoster();
-		// });
-	});
 });
 function findSocketsInGame(gameId) {
 	var s = [];
@@ -126,10 +139,11 @@ function findSocketsInGame(gameId) {
 	});
 	return s;
 }
-function findSocket(socketId) {
+function findSocket(id) {
 	var s = null;
 	sockets.forEach(function(socket) {
-		if(socket.id == socketId || socket.sessionId == socketId)
+		var sID = socket.sessionId || socket.id;
+		if(gameInstances[sID].userName == id)//socket.id == id || socket.sessionId == id)
 			s = socket;
 	});
 	return s;
@@ -196,6 +210,16 @@ function setUpGameListeners(socket, gameInstance) {
 		    gameInstance.do(socket.sessionId || socket.id, event);
 	});
 }
+function setUpWatchListeners(socket, gameInstance) {
+	socket.on('watchers', function() {
+		var users = [];
+		gameInstance.watchers.forEach(function(socket) {
+			users.push(gameInstances[socket.sessionId || socket.id].userName);
+		});
+		socket.emit('watchers', {myUser: gameInstance.userName, users: users.length});
+	});
+}
+
 
 server.listen(process.argv[2] || process.env.PORT || 3000, process.argv[3] || process.env.IP || "0.0.0.0", function(){
 	var addr = server.address();

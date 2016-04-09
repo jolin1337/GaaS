@@ -93,7 +93,7 @@
 					<span style="padding: 30px;">
 						<a href="http://{{ip}}#{{game.slug}}" class="btn btn-lg btn-info" role="button">Play</a>
 					</span>
-					<a ng-click="lookUpWatchers(game.id)" class="btn btn-lg btn-warning" role="button" style="position: relative; z-index: 100">Watch</a>
+					<a href="#watchers" data-toggle="modal" ng-click="lookUpWatchers(game.id)" class="btn btn-lg btn-warning" role="button" style="position: relative; z-index: 100">Watch</a>
 				</div>
 			</div>
 			
@@ -110,6 +110,21 @@
 		</a>
 	</div>
 </div>
+
+	<div class="modal fade" id="watchers" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h4>Game player details {{gameDetailed.game}}</h4>
+				</div>
+				<div class="modal-body">
+					<div ng-repeat="player in gameDetailed.watchers">
+						{{player.userName}}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script src="js/main.js"></script>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="js/jquery.min.js"></script>

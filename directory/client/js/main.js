@@ -2,6 +2,13 @@
 function GaaSController($scope) {
 	var socket = io.connect(window.location.origin, { /* Parameters sent in the connection phase here */ });
 	
+	function getGameName(gameId) {
+		for(var i = 0; i < $scope.games.length; i++)
+			if($scope.games[i].id == gameId)
+				return $scope.games[i].userName;
+		return gameId;
+	}
+	
 	$scope.games = [{name: "Loading..."}];
 	socket.on('directory', function (games) {
 		$scope.ip = games.gameIp;
@@ -24,9 +31,13 @@ function GaaSController($scope) {
 	});
 	socket.on('playerList', function(players) {
 		if(players.players.length == 1) {
-			
 			window.location.href = 'http://' + $scope.ip + '/#' + players.gameId + "," + players.players[0];
-		console.log(players);
+		}
+		else {
+			$scope.gameDetailed = {
+				game: getGameName(players.gameId),
+				watchers: players.players
+			};
 		}
 	});
 	socket.emit('directory');
