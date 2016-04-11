@@ -1,7 +1,7 @@
 //
-// # SimpleServer
+// # Gaming as a service gaming app
 //
-// A simple chat server using Socket.IO, Express, and Async.
+// This file computes all games currently running on the public gaming server
 //
 var http = require('http');
 var path = require('path');
@@ -18,6 +18,7 @@ Game.getGamesDataFromFile(__dirname + "/client/game-meta.json");
 //
 // Creates a new instance of SimpleServer with the following options:
 //  * `port` - The HTTP port to listen on. If `process.env.PORT` is set, _it overrides this value_.
+//    If arguments is passed it overides the port aswell the process.env.PORT
 //
 var router = express();
 var server = http.createServer(router);
