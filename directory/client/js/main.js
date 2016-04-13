@@ -30,15 +30,16 @@ function GaaSController($scope) {
 			}
 	});
 	socket.on('playerList', function(players) {
-		if(players.players.length == 1) {
-			window.location.href = 'http://' + $scope.ip + '/#' + players.gameId + "," + players.players[0];
-		}
-		else {
+		console.log(players);
+		//if(players.players.length == 1) {
+		//	window.location.href = 'http://' + $scope.ip + '/#' + players.gameId + "," + players.players[0];
+		//}
+		//else {
 			$scope.gameDetailed = {
 				game: getGameName(players.gameId),
 				watchers: players.players
 			};
-		}
+		//}
 	});
 	socket.emit('directory');
 	
