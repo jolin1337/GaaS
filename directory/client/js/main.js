@@ -41,7 +41,7 @@ function GaaSController($scope) {
 				id: game.id,
 				watchers: players.players
 			};
-			$scope.apply();
+			$scope.$apply();
 		//}
 	});
 	socket.emit('directory');
