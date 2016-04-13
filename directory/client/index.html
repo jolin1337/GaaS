@@ -115,11 +115,11 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h4>Game player details {{gameDetailed.game}}</h4>
+					<h4>Game player details {{gameDetailed.gameName}}</h4>
 				</div>
 				<div class="modal-body">
-					<div ng-repeat="player in gameDetailed.watchers">
-						{{player.userName}}
+					<div ng-repeat="(index,player) in gameDetailed.watchers">
+						<a ng-href="http://{{ip}}#{{gameDetailed.id}},{{player}}">{{player.userName}}</a>
 					</div>
 				</div>
 			</div>

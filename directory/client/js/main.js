@@ -2,10 +2,10 @@
 function GaaSController($scope) {
 	var socket = io.connect(window.location.origin, { /* Parameters sent in the connection phase here */ });
 	
-	function getGameName(gameId) {
+	function getGame(gameId) {
 		for(var i = 0; i < $scope.games.length; i++)
 			if($scope.games[i].id == gameId)
-				return $scope.games[i].userName;
+				return $scope.games[i];
 		return gameId;
 	}
 	
@@ -30,13 +30,15 @@ function GaaSController($scope) {
 			}
 	});
 	socket.on('playerList', function(players) {
-		console.log(players);
+		var game = getGame(players.gameId);
 		//if(players.players.length == 1) {
 		//	window.location.href = 'http://' + $scope.ip + '/#' + players.gameId + "," + players.players[0];
 		//}
 		//else {
 			$scope.gameDetailed = {
-				game: getGameName(players.gameId),
+				gameName: game.name,
+				slug: game.slug,
+				id: game.id,
 				watchers: players.players
 			};
 		//}

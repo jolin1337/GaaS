@@ -135,7 +135,7 @@ io.on('connection', function (socket) {
 function findSocketsInGame(gameId) {
 	var s = [];
 	sockets.forEach(function(socket) {
-		if(gameInstances[socket.sessionId || socket.id].id == gameId)
+		if(socket !== undefined && (gameInstances[socket.sessionId || socket.id].id == gameId))
 			s.push(socket);
 	});
 	return s;
