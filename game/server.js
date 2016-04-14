@@ -84,9 +84,13 @@ io.on('connection', function (socket) {
 			gameInstances[sID] = gameInstance;
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) { // TODO: implement streaming content
-					socket.emit('image', {data: canvasData});
+					var ctx = canvasData.getContext("2d");
+					ctx.fillStyle = "rgba(0,0,0,0.3)";
+					ctx.fillText(gameInstance.userName, 0, canvasData.height);
+					var data = canvasData.toDataURL();
+					socket.emit('image', {data: data});
 					for(var i = 0; i < gameInstances[sID].watchers.length; i++)
-						gameInstances[sID].watchers[i].emit('image', {data: canvasData});
+						gameInstances[sID].watchers[i].emit('image', {data: data});
 				}
 			});
 			var ctrls = Game.getControls(gameIdentifier);
@@ -114,8 +118,10 @@ io.on('connection', function (socket) {
 			socket.on('identify', function (name) {
 				for(var i in gameInstances) 
 					if(gameInstances[i] != undefined && gameInstances[i].userName == name)
-						return;
+						name = gameInstance.userName;
 				gameInstance.userName = name;
+				socket.emit('identify', {name: name, count: gameInstance.watchers.length});
+				broadcast('roster', {name: name, count: gameInstance.watchers.length}, gameInstance.watchers);
 				// socket.set('name', String(name || 'Anonymous'), function (err) {
 				// 	updateRoster();
 				// });
@@ -161,8 +167,10 @@ function updateRoster() {
 	);
 }
 
-function broadcast(event, data) {
-	sockets.forEach(function (socket) {
+function broadcast(event, data, scope) {
+	if(!(scope instanceof Array))
+		scope = sockets;
+	scope.forEach(function (socket) {
 		socket.emit(event, data);
 	});
 }

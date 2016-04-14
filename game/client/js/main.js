@@ -42,11 +42,18 @@ function GaaSController($scope) {
 		    img.css('width', '100%');
 		}
 	});
+	socket.on('identify', function(info) {
+		$scope.name = info.name;
+		console.log(info.name, info.count);
+	});
+	//$scope.setName = function () {
+	//	socket.emit('identify', $scope.name);
+	//};
 
-	//socket.on('roster', function (names) {
-	//	$scope.roster = names;
-	//	$scope.$apply();
-	//});
+	socket.on('roster', function (names) {
+		$scope.roster = names;
+		$scope.$apply();
+	});
 	socket.on('controls', function(controls) {
 		if(typeof controls.kb == "object" ) {
 			for(var i = 0; i < controls.kb.length; i++) {
@@ -130,9 +137,6 @@ function GaaSController($scope) {
 	    //socket.emit('close');
 	});
 	
-	//$scope.setName = function () {
-	//	socket.emit('identify', $scope.name);
-	//};
 	
 	function keyEvent(event) {
 		if(!(kbEvents[event.type] instanceof Array)) return;
@@ -265,99 +269,4 @@ function GaaSController($scope) {
 			touchEnd: function(e) {touchKeyEvent(e, gamePadLayout.B.keyCode)}
 		}
 	};
-	/*
-	GameController.init({
-		canvas: controlview[0],
-		buttons: gamePadEvents
-		/*left: {
-			type: 'joystick',
-			position: {left: '15%', bottom: '15%'},
-			joystick: {
-				touchStart: function(){
-					console.log('touch starts');
-				},
-				touchEnd: function(){
-					console.log('touch ends');
-				},
-				touchMove: function(details){
-					console.log(details);
-				}
-			}
-		},
-		
-	    left: {
-			type: 'dpad',
-			position: { left: '13%', bottom: '22%' },
-			dpad: {
-				up: {
-					width: '7%',
-					height: '15%',
-					stroke: 2,
-					touchStart: function() {
-						GameController.simulateKeyEvent( 'press', 38);
-						GameController.simulateKeyEvent( 'down', 38);
-					},
-					touchEnd: function() {
-						GameController.simulateKeyEvent( 'up', 38);
-					}
-				},
-				left: {
-					width: '15%',
-					height: '7%',
-					stroke: 2,
-					touchStart: function() {
-						GameController.simulateKeyEvent( 'press', 37);
-						GameController.simulateKeyEvent( 'down', 37);
-					},
-					touchEnd: function() {
-						GameController.simulateKeyEvent( 'up', 37);
-					}
-				},
-				down: {
-					width: '7%',
-					height: '15%',
-					stroke: 2,
-					touchStart: function() {
-						GameController.simulateKeyEvent( 'press', 40);
-						GameController.simulateKeyEvent( 'down', 40);
-					},
-					touchEnd: function() {
-						GameController.simulateKeyEvent( 'up', 40);
-					}
-				},
-				right: {
-					width: '15%',
-					height: '7%',
-					stroke: 2,
-					touchStart: function() {
-						GameController.simulateKeyEvent( 'press', 39);
-						GameController.simulateKeyEvent( 'down', 39);
-					},
-					touchEnd: function() {
-						GameController.simulateKeyEvent( 'up', 39);
-					}
-				}
-			}
-	    },
-		right:  {
-			position: {right: '15%', bottom: '20%'},
-			type: 'buttons',
-			buttons: [{
-				label: 'A',
-				fontSize: 23,
-				touchStart: function(){
-				console.log('A start');
-				}
-			}, {
-				label: 'B',
-				fontSize: 23,
-				touchStart: function(){
-					console.log('B start');
-				}
-			},
-				false,
-				false
-			]
-		}
-	});*/
 }
