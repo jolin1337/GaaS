@@ -21,14 +21,15 @@ function GaaSController($scope) {
 	var socket = io.connect(window.location.origin, { query: "game=" + gameSlug + gameWatch });
 	var controls = {};
 	var img = $('#gameview');
+	var lastTimeImageCame;
 
 	//$scope.roster = [];
 	//$scope.name = '';
 
 	socket.on('connect', function () {
 		// $scope.setName();
+		lastTimeImageCame = new Date().getTime();
 	});
-
 	socket.on('image', function(pngFile) {
 		img.attr('src', pngFile.data);
 		var ratio = img[0].naturalHeight / img[0].naturalWidth;
@@ -50,8 +51,9 @@ function GaaSController($scope) {
 	//	socket.emit('identify', $scope.name);
 	//};
 
-	socket.on('roster', function (names) {
-		$scope.roster = names;
+	socket.on('roster', function (info) {
+		$scope.name = info.name;
+		console.log(info.name, info.count);
 		$scope.$apply();
 	});
 	socket.on('controls', function(controls) {

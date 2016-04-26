@@ -84,13 +84,13 @@ io.on('connection', function (socket) {
 			gameInstances[sID] = gameInstance;
 			gameInstance.on('update', function (delta, canvasData) {
 				if(canvasData !== null) { // TODO: implement streaming content
-					var ctx = canvasData.getContext("2d");
-					ctx.fillStyle = "rgba(0,0,0,0.3)";
-					ctx.fillText(gameInstance.userName, 0, canvasData.height);
-					var data = canvasData.toDataURL();
-					socket.emit('image', {data: data});
+					//var ctx = canvasData.getContext("2d");
+					//ctx.fillStyle = "rgba(0,0,0,0.3)";
+					//ctx.fillText(gameInstance.userName, 0, canvasData.height);
+					//var data = canvasData.toDataURL();
+					socket.emit('image', {data: canvasData});
 					for(var i = 0; i < gameInstances[sID].watchers.length; i++)
-						gameInstances[sID].watchers[i].emit('image', {data: data});
+						gameInstances[sID].watchers[i].emit('image', {data: canvasData});
 				}
 			});
 			var ctrls = Game.getControls(gameIdentifier);
