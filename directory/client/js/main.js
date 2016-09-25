@@ -1,9 +1,9 @@
-
 function GaaSController($scope) {
 	var socket = io.connect(window.location.origin, { /* Parameters sent in the connection phase here */ });
 	
 	$scope.games = [{name: "Loading..."}];
 	socket.on('directory', function (games) {
+            $scope.ip = games.gameip;
 	    $scope.games = games.games;
 		$scope.$apply();
 		$('.carousel-indicators li:first-child').addClass('active');
